@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Citius NCR | M-Status</title>
+<style>
+  /* ── Reset & Base ───────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy:    #1F3864;
+    --blue:    #2E75B6;
+    --lblue:   #D5E8F0;
+    --llblue:  #EEF4FB;
+    --teal:    #006064;
+    --lteal:   #E0F7FA;
+    --red:     #C00000;
+    --lred:    #FFE8E8;
+    --orange:  #C55A11;
+    --lorange: #FFF0E0;
+    --yellow:  #FFF9C4;
+    --green:   #2E7D32;
+    --lgreen:  #E8F5E9;
+    --gray:    #595959;
+    --lgray:   #F5F7FA;
+    --white:   #FFFFFF;
+    --border:  #D0D8E4;
+    --text:    #1A1A2E;
+    --radius:  10px;
+    --shadow:  0 2px 12px rgba(31,56,100,0.10);
+    --shadow-lg: 0 8px 32px rgba(31,56,100,0.18);
+  }
+  html { font-size: 15px; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--lgray);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ─────────────────────────────────────────── */
+  .app-header {
+    background: linear-gradient(135deg, var(--navy) 0%, #2E4A8A 60%, var(--blue) 100%);
+    padding: 20px 28px 0;
+    box-shadow: var(--shadow-lg);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-top {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 16px;
+  }
+  .header-icon {
+    width: 48px; height: 48px; flex-shrink: 0;
+    background: #FFFFFF;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    padding: 6px;
+  }
+  .header-title h1 {
+    font-size: 1.35rem; font-weight: 700; color: #fff;
+    letter-spacing: 0.3px;
+  }
+  .header-title p {
+    font-size: 0.78rem; color: rgba(255,255,255,0.65);
+    margin-top: 2px; font-style: italic;
+  }
+  .header-badge {
+    margin-left: auto;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.85);
+    font-size: 0.70rem; font-weight: 600;
+    padding: 4px 10px; border-radius: 20px;
+    letter-spacing: 0.5px; white-space: nowrap;
+  }
+
+  /* ── Search Bar ─────────────────────────────────────── */
+  .search-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.20);
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    margin-bottom: 16px;
+  }
+  .search-bar svg { flex-shrink: 0; opacity: 0.6; }
+  .search-bar input {
+    flex: 1; background: none; border: none; outline: none;
+    color: #fff; font-size: 0.95rem;
+    font-family: inherit;
+  }
+  .search-bar input::placeholder { color: rgba(255,255,255,0.45); }
+  .search-clear {
+    cursor: pointer; opacity: 0.5; font-size: 18px; color: #fff;
+    line-height: 1; background: none; border: none;
+    transition: opacity .2s;
+  }
+  .search-clear:hover { opacity: 1; }
+
+  /* ── Tabs ───────────────────────────────────────────── */
+  .tabs {
+    display: flex; gap: 4px;
+  }
+  .tab-btn {
+    padding: 10px 22px; font-size: 0.88rem; font-weight: 600;
+    border: none; cursor: pointer; border-radius: 8px 8px 0 0;
+    background: rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.65);
+    transition: all .2s; letter-spacing: 0.2px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .tab-btn.active {
+    background: var(--lgray);
+    color: var(--navy);
+  }
+  .tab-btn:not(.active):hover {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+  }
+  .tab-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+  }
+
+  /* ── Main content ───────────────────────────────────── */
+  .app-body { padding: 24px 28px; max-width: 1300px; margin: 0 auto; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Stats bar ──────────────────────────────────────── */
+  .stats-bar {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .stat-pill {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 20px; padding: 5px 14px;
+    font-size: 0.80rem; font-weight: 600; color: var(--gray);
+    box-shadow: var(--shadow);
+  }
+  .stat-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+  }
+  .stat-count { font-weight: 700; }
+
+  /* ── Filter chips ───────────────────────────────────── */
+  .filter-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 20px; align-items: center;
+  }
+  .filter-label {
+    font-size: 0.78rem; font-weight: 600; color: var(--gray);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-right: 4px;
+  }
+  .chip {
+    padding: 5px 14px; border-radius: 20px;
+    border: 1.5px solid transparent; cursor: pointer;
+    font-size: 0.80rem; font-weight: 600;
+    background: var(--white); color: var(--gray);
+    border-color: var(--border);
+    transition: all .18s;
+  }
+  .chip.active, .chip:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,.10); }
+  .chip-all.active   { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .chip-kritis.active { background: var(--red); color: #fff; border-color: var(--red); }
+  .chip-tinggi.active  { background: var(--orange); color: #fff; border-color: var(--orange); }
+  .chip-menengah.active { background: #856404; color: #fff; border-color: #856404; }
+  .chip-normal.active  { background: var(--green); color: #fff; border-color: var(--green); }
+
+  /* ── Cards grid ─────────────────────────────────────── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border-left: 5px solid var(--border);
+    overflow: hidden;
+    transition: transform .18s, box-shadow .18s;
+    cursor: pointer;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .card.kritis  { border-left-color: var(--red); }
+  .card.tinggi  { border-left-color: var(--orange); }
+  .card.menengah { border-left-color: #D4AC0D; }
+  .card.normal, .card.info { border-left-color: var(--green); }
+
+  .card-header {
+    display: flex; align-items: flex-start;
+    padding: 14px 16px 10px;
+    gap: 12px;
+  }
+  .card-code {
+    background: var(--navy); color: #fff;
+    font-size: 1.25rem; font-weight: 800;
+    min-width: 52px; text-align: center;
+    border-radius: 8px; padding: 6px 10px;
+    letter-spacing: 1px; font-family: 'Courier New', monospace;
+    flex-shrink: 0;
+  }
+  .card-meta { flex: 1; min-width: 0; }
+  .card-title {
+    font-size: 0.92rem; font-weight: 700; color: var(--text);
+    line-height: 1.35;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .card-badges { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .badge {
+    font-size: 0.68rem; font-weight: 700; padding: 2px 8px;
+    border-radius: 12px; letter-spacing: 0.4px;
+    text-transform: uppercase; white-space: nowrap;
+  }
+  .badge-kritis  { background: var(--lred);    color: var(--red); }
+  .badge-tinggi  { background: var(--lorange); color: var(--orange); }
+  .badge-menengah{ background: var(--yellow);  color: #856404; }
+  .badge-normal,
+  .badge-info    { background: var(--lgreen);  color: var(--green); }
+  .badge-tipe    { background: var(--llblue);  color: var(--blue); }
+
+  .card-divider {
+    height: 1px; background: var(--border);
+    margin: 0 16px;
+  }
+  .card-body { padding: 12px 16px 14px; }
+  .card-section { margin-bottom: 8px; }
+  .card-section:last-child { margin-bottom: 0; }
+  .section-label {
+    font-size: 0.68rem; font-weight: 700; color: var(--gray);
+    text-transform: uppercase; letter-spacing: 0.6px;
+    margin-bottom: 3px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .section-label svg { opacity: 0.6; }
+  .section-text {
+    font-size: 0.84rem; color: var(--text); line-height: 1.5;
+  }
+  .card-actions {
+    padding: 0 16px 14px;
+    display: flex; gap: 8px;
+  }
+  .btn-detail {
+    flex: 1; padding: 7px 0; border-radius: 7px;
+    border: 1.5px solid var(--blue); background: none;
+    color: var(--blue); font-size: 0.80rem; font-weight: 700;
+    cursor: pointer; transition: all .18s; font-family: inherit;
+  }
+  .btn-detail:hover { background: var(--blue); color: #fff; }
+
+  /* ── Empty state ────────────────────────────────────── */
+  .empty-state {
+    text-align: center; padding: 60px 20px;
+    color: var(--gray);
+  }
+  .empty-state .es-icon { font-size: 52px; opacity: 0.35; margin-bottom: 12px; }
+  .empty-state h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: var(--navy); }
+  .empty-state p { font-size: 0.88rem; opacity: 0.7; }
+
+  /* ── Modal ──────────────────────────────────────────── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(10,20,50,0.55); z-index: 999;
+    align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--white); border-radius: 14px;
+    box-shadow: var(--shadow-lg);
+    max-width: 700px; width: 100%;
+    max-height: 90vh; overflow-y: auto;
+    animation: modalIn .22s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes modalIn {
+    from { transform: scale(.94) translateY(16px); opacity: 0; }
+    to   { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .modal-header {
+    display: flex; align-items: flex-start;
+    padding: 22px 22px 16px;
+    gap: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-code {
+    background: var(--navy); color: #fff;
+    font-size: 2rem; font-weight: 800;
+    min-width: 68px; text-align: center;
+    border-radius: 10px; padding: 10px 14px;
+    letter-spacing: 1px; font-family: 'Courier New', monospace;
+    flex-shrink: 0;
+  }
+  .modal-title { flex: 1; }
+  .modal-title h2 { font-size: 1.15rem; font-weight: 700; color: var(--navy); line-height: 1.4; }
+  .modal-title .modal-badges { display: flex; gap: 7px; margin-top: 8px; flex-wrap: wrap; }
+  .modal-close {
+    background: var(--lgray); border: none; border-radius: 8px;
+    width: 34px; height: 34px; cursor: pointer; font-size: 18px;
+    color: var(--gray); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .18s;
+  }
+  .modal-close:hover { background: var(--lred); color: var(--red); }
+  .modal-body { padding: 20px 22px 24px; }
+  .modal-section { margin-bottom: 20px; }
+  .modal-section:last-child { margin-bottom: 0; }
+  .modal-section-title {
+    font-size: 0.75rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--blue);
+    border-bottom: 2px solid var(--lblue);
+    padding-bottom: 5px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .modal-section-text {
+    font-size: 0.90rem; line-height: 1.65; color: var(--text);
+  }
+  .solusi-list { list-style: none; }
+  .solusi-list li {
+    display: flex; gap: 10px; padding: 6px 0;
+    border-bottom: 1px solid var(--lgray);
+    font-size: 0.88rem; line-height: 1.5;
+  }
+  .solusi-list li:last-child { border-bottom: none; }
+  .solusi-num {
+    flex-shrink: 0; width: 22px; height: 22px;
+    background: var(--blue); color: #fff;
+    border-radius: 50%; font-size: 0.70rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+  }
+  .komponen-tag {
+    display: inline-block;
+    background: var(--llblue); color: var(--blue);
+    font-size: 0.78rem; font-weight: 600; padding: 3px 10px;
+    border-radius: 5px; margin: 3px 3px 3px 0;
+    border: 1px solid var(--lblue);
+  }
+  .prio-banner {
+    border-radius: 8px; padding: 10px 14px;
+    margin-bottom: 14px; font-size: 0.86rem; font-weight: 600;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .prio-banner.kritis  { background: var(--lred);    color: var(--red); }
+  .prio-banner.tinggi  { background: var(--lorange); color: var(--orange); }
+  .prio-banner.menengah { background: var(--yellow); color: #856404; }
+  .prio-banner.normal,
+  .prio-banner.info    { background: var(--lgreen);  color: var(--green); }
+
+  /* ── Result count ───────────────────────────────────── */
+  .result-count {
+    font-size: 0.80rem; color: var(--gray);
+    margin-bottom: 14px; font-weight: 600;
+  }
+  .result-count span { color: var(--navy); font-size: 1rem; }
+
+  /* ── Scrollbar ──────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #C8D4E8; border-radius: 4px; }
+
+  /* ── Responsive ─────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .app-body { padding: 16px; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .header-badge { display: none; }
+    .tab-btn { padding: 9px 14px; font-size: 0.80rem; }
+  }
+
+  /* ── Print ──────────────────────────────────────────── */
+  @media print {
+    .app-header, .filter-row, .card-actions { display: none !important; }
+    .cards-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="header-top">
+    <div class="header-icon">
+      <svg viewBox="0 0 220 220" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="citiusBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1a2f7a"/>
+            <stop offset="100%" stop-color="#1f4fa8"/>
+          </linearGradient>
+          <linearGradient id="citiusGreenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1e6b2e"/>
+            <stop offset="100%" stop-color="#3fae4a"/>
+          </linearGradient>
+        </defs>
+        <path d="M150 30
+                 C 90 10, 30 55, 30 115
+                 C 30 175, 90 200, 145 185
+                 C 165 180, 170 155, 155 140
+                 C 140 128, 120 135, 110 145
+                 C 90 160, 65 145, 65 115
+                 C 65 85, 95 65, 120 78
+                 C 135 85, 150 78, 158 60
+                 C 165 45, 162 35, 150 30 Z"
+              fill="url(#citiusBlueGrad)"/>
+        <circle cx="180" cy="130" r="30" fill="url(#citiusGreenGrad)"/>
+      </svg>
+    </div>
+    <div class="header-title">
+      <h1>NCR ATM | M-Status</h1>
+      <p>rev version v1.7.6</p>
+    </div>
+    <div class="header-badge">Citius Technical Support by Laska</div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Cari kode M-Status, deskripsi, atau solusi..." autocomplete="off">
+    <button class="search-clear" id="clearSearch" title="Hapus pencarian">✕</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="dispenser">
+      <span class="tab-dot" style="background:#FFB347"></span>
+      💵 S1 Dispenser
+    </button>
+    <button class="tab-btn" data-tab="cardreader">
+      <span class="tab-dot" style="background:#64B5F6"></span>
+      💳 IMCRW/UIMCRW
+    </button>
+  </div>
+</header>
+
+<!-- BODY -->
+<main class="app-body">
+
+  <!-- ══ TAB: DISPENSER ══════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-dispenser">
+    <div class="stats-bar" id="stats-dispenser"></div>
+    <div class="filter-row" id="filter-dispenser"></div>
+    <div class="result-count" id="count-dispenser"></div>
+    <div class="cards-grid" id="grid-dispenser"></div>
+  </div>
+
+  <!-- ══ TAB: CARD READER ════════════════════════════════ -->
+  <div class="tab-panel" id="tab-cardreader">
+    <div class="stats-bar" id="stats-cardreader"></div>
+    <div class="filter-row" id="filter-cardreader"></div>
+    <div class="result-count" id="count-cardreader"></div>
+    <div class="cards-grid" id="grid-cardreader"></div>
+  </div>
+
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div class="modal-code" id="mCode"></div>
+      <div class="modal-title">
+        <h2 id="mTitle"></h2>
+        <div class="modal-badges" id="mBadges"></div>
+      </div>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA – CURRENCY DISPENSER
+// ═══════════════════════════════════════════════════════════
+const DISPENSER_DATA = [
+  { code:"00", prio:"Normal", tipe:"Semua",
+    desc:"Tidak ada error – operasi berjalan normal",
+    komponen:[],
+    solusi:["Tidak diperlukan tindakan. Sistem normal."] },
+
+  { code:"01", prio:"Tinggi", tipe:"Semua",
+    desc:"Pick diminta dari kaset yang tidak terpasang, atau tidak ada kaset terpasang saat self-test",
+    komponen:["Kaset","Pick Module"],
+    solusi:["Periksa dan pastikan kaset uang terpasang dengan benar di semua posisi pick module (atas, ke-2, ke-3, bawah).","Lakukan self-test ulang setelah kaset dipasang kembali."] },
+
+  { code:"02", prio:"Tinggi", tipe:"Semua",
+    desc:"Terlalu banyak lembaran uang yang ditolak (reject): terlalu kecil, terlalu besar, ganda, ekstra, atau gagal mempelajari lebar dan singularitas lembaran",
+    komponen:["Sensor LVDT/NTS","Kaset","Mekanisme Pick"],
+    solusi:["Bersihkan sensor LVDT/NTS dengan kain bebas serat yang dibasahi IPA.","Periksa kondisi uang dalam kaset (tidak kusut, basah, atau menempel).","Lakukan prosedur 'Learn Bill Parameters'.","Jika berlanjut, ganti kaset atau bersihkan mekanisme pick."] },
+
+  { code:"03", prio:"Tinggi", tipe:"Semua",
+    desc:"Kegagalan pengambilan lembaran (pick failure)",
+    komponen:["Mekanisme Pick","Kaset","Sensor Pick"],
+    solusi:["Periksa apakah kaset terisi cukup uang.","Bersihkan roller dan sensor pick dengan blower udara bertekanan rendah.","Pastikan uang dalam kaset tidak saling menempel.","Jika berlanjut, periksa atau ganti pick module."] },
+
+  { code:"04", prio:"Kritis", tipe:"Semua",
+    desc:"Pick failure + sensor low aktif – kaset hampir kosong atau kosong",
+    komponen:["Mekanisme Pick","Kaset (Hampir Kosong)","Sensor Low Kaset"],
+    solusi:["ISI ULANG kaset uang segera.","Setelah pengisian, lakukan reset unit.","Jalankan self-test untuk konfirmasi.","Jika error masih muncul meski kaset penuh, periksa sensor low cassette."] },
+
+  { code:"05", prio:"Kritis", tipe:"Semua",
+    desc:"Kegagalan sensor transport utama, uang macet di transport, ATAU dispense singkat (jumlah lembar kurang dari permintaan) tanpa laporan error",
+    komponen:["Sensor Transport (TSEN 1-8)","Jalur Transport Utama","Timing Disk Motor Utama"],
+    solusi:["Buka unit dan periksa adanya uang yang macet di jalur transport utama.","Bersihkan semua sensor transport (TSEN 1-8) dengan udara bertekanan rendah.","Periksa kondisi timing disk motor utama (retak, kotor).","Verifikasi jumlah dispense apakah sesuai permintaan host."] },
+
+  { code:"06", prio:"Tinggi", tipe:"Spray",
+    desc:"Kesalahan divert gate: posisi awal salah, gagal bergerak ke posisi yang benar, atau kegagalan sensor divert gate",
+    komponen:["Divert Gate","Sensor Divert Gate","Solenoid Divert Gate"],
+    solusi:["Periksa mekanisme divert gate secara visual (kemungkinan macet atau terhalang benda asing).","Bersihkan sensor divert gate.","Uji fungsi solenoid divert gate.","Jika perlu, ganti unit divert gate."] },
+
+  { code:"07", prio:"Kritis", tipe:"Semua",
+    desc:"Purge bin / reject bin TIDAK terpasang – unit tidak beroperasi (INOPERATIVE)",
+    komponen:["Purge Bin / Reject Bin"],
+    solusi:["Pasang purge bin dengan benar hingga terdengar bunyi klik (terkunci).","Lakukan reset unit setelah pemasangan.","Unit tidak dapat beroperasi sama sekali tanpa purge bin terpasang."] },
+
+  { code:"08", prio:"Kritis", tipe:"Stacking",
+    desc:"Sensor overfill purge bin terblokir ATAU purge bin sudah penuh – unit tidak beroperasi",
+    komponen:["Purge Bin","Sensor Overfill Purge Bin"],
+    solusi:["Kosongkan purge bin dari semua lembaran uang yang tertolak.","Bersihkan sensor overfill purge bin dari kotoran.","Pastikan sensor tidak rusak secara fisik.","Lakukan reset unit setelah purge bin dikosongkan."] },
+
+  { code:"09", prio:"Kritis", tipe:"Semua",
+    desc:"Kegagalan komunikasi antara firmware Command dan Execution, atau antara host dan perangkat (USB S1). Informasi replenishment mungkin tidak tersedia",
+    komponen:["Board Kontrol","Kabel Komunikasi","Firmware"],
+    solusi:["Periksa koneksi kabel antara command board dan execution board.","Lakukan power cycle (matikan dan hidupkan kembali ATM).","Update atau reflash firmware jika diperlukan.","Jika berlanjut, ganti board kontrol."] },
+
+  { code:"10", prio:"Kritis", tipe:"Semua",
+    desc:"Operasi tidak dilakukan karena perangkat atau kaset dalam status FATAL dari operasi sebelumnya. Reset SOH ke HEALTHY diperlukan",
+    komponen:["SOH (State of Health)","Board Kontrol"],
+    solusi:["Lakukan reset SOH ke status HEALTHY melalui Supervisor Software ATM.","Identifikasi penyebab FATAL dari log error sebelumnya.","Selesaikan masalah akar (root cause) sebelum melanjutkan operasi.","Setelah SOH HEALTHY, jalankan self-test."] },
+
+  { code:"11", prio:"Tinggi", tipe:"Semua",
+    desc:"Operasi tidak dilakukan karena uang masih tersusun di transport dari operasi sebelumnya (stacking), atau uang belum dibersihkan akibat error sebelumnya. Dispenser baru dinyalakan dan belum ada perintah CLEAR/DIAG_CLEAR",
+    komponen:["Transport","Jalur Stacking"],
+    solusi:["Lakukan perintah CLEAR atau DIAG_CLEAR melalui mode supervisor.","Periksa dan bersihkan uang yang mungkin tersisa di jalur transport.","Jika setelah CLEAR masih error, periksa sensor transport."] },
+
+  { code:"12", prio:"Tinggi", tipe:"Stacking",
+    desc:"Mekanisme penjepit (clamp) presenter atau mekanisme alignment bill gagal atau macet",
+    komponen:["Presenter Clamp","Bill Alignment Mechanism","Motor Clamp"],
+    solusi:["Periksa secara visual apakah ada uang yang menyumbat mekanisme clamp.","Bersihkan area clamp dari kotoran dan debu.","Uji motor clamp presenter.","Jika clamp rusak secara mekanis, ganti komponen presenter clamp."] },
+
+  { code:"13", prio:"Kritis", tipe:"Stacking",
+    desc:"Exit shutter macet dalam posisi TERBUKA",
+    komponen:["Exit Shutter","Sensor Shutter Open","Motor/Solenoid Shutter"],
+    solusi:["Periksa apakah ada benda asing yang menghalangi shutter menutup.","Bersihkan mekanisme dan rel shutter.","Uji sensor open/close shutter.","Jika motor atau solenoid shutter rusak, lakukan penggantian."] },
+
+  { code:"14", prio:"Kritis", tipe:"Stacking",
+    desc:"Exit shutter macet dalam posisi TERTUTUP",
+    komponen:["Exit Shutter","Sensor Shutter Closed","Motor/Solenoid Shutter"],
+    solusi:["Periksa hambatan fisik pada rel shutter.","Bersihkan rel dan mekanisme shutter secara menyeluruh.","Uji sensor shutter closed.","Ganti unit shutter jika diperlukan."] },
+
+  { code:"15", prio:"Menengah", tipe:"Stacking",
+    desc:"Uang terdeteksi melewati sensor overfill presenter – uang mungkin terlipat atau kusut",
+    komponen:["Sensor Overfill Presenter","Uang Terlipat/Kusut"],
+    solusi:["Periksa kondisi uang dalam kaset (terlipat, kusut, atau tertekuk).","Bersihkan sensor overfill presenter dari kotoran.","Periksa tumpukan uang di area presenter.","Lakukan purge cycle untuk membersihkan jalur presenter."] },
+
+  { code:"16", prio:"Kritis", tipe:"Semua",
+    desc:"Timing disk transport utama tidak beroperasi dengan benar ATAU motor AC utama gagal",
+    komponen:["Motor Utama (Motor AC)","Timing Disk","Sensor Timing Disk"],
+    solusi:["Periksa kondisi fisik timing disk (retak, kotor, atau aus).","Bersihkan sensor timing disk dengan blower.","Uji motor AC utama (arus dan tegangan).","Jika motor atau timing disk rusak, lakukan penggantian."] },
+
+  { code:"17", prio:"Info", tipe:"Semua",
+    desc:"Reserved – dicadangkan untuk penggunaan masa mendatang",
+    komponen:[],
+    solusi:["Kode ini dicadangkan (reserved). Jika muncul, konsultasikan dengan NCR Support."] },
+
+  { code:"18", prio:"Kritis", tipe:"Stacking",
+    desc:"Uang macet di transport presenter ATAU kegagalan sensor transport presenter",
+    komponen:["Presenter Transport","Sensor Transport Presenter","Motor Presenter"],
+    solusi:["Buka akses presenter dan periksa adanya uang macet.","Bersihkan semua sensor di jalur transport presenter.","Uji motor transport presenter.","Lakukan CLEAR setelah perbaikan."] },
+
+  { code:"19", prio:"Tinggi", tipe:"Stacking",
+    desc:"Sensor exit terblokir pada operasi berikutnya setelah presentasi berhasil – uang mungkin belum diambil oleh nasabah",
+    komponen:["Exit Sensor","Presenter"],
+    solusi:["Periksa apakah ada uang yang tertinggal di slot keluaran.","Ambil uang yang tersisa secara manual.","Bersihkan sensor exit.","Lakukan CLEAR dan verifikasi replenishment data."] },
+  { code:"20-27", prio:"Info", tipe:"Semua",
+    desc:"Reserved – kode M-20 hingga M-27 dicadangkan untuk penggunaan masa mendatang",
+    komponen:[],
+    solusi:["Kode ini dicadangkan (reserved). Jika salah satu muncul, konsultasikan dengan NCR Support."] },
+
+    { code:"21", prio:"Kritis", tipe:"Semua",
+    desc:"Security violation – pelanggaran keamanan terdeteksi",
+    komponen:["Sistem Keamanan","Anti-Tamper Module"],
+    solusi:["HUBUNGI TIM KEAMANAN SEGERA.","Jangan lakukan aksi apapun sebelum tim keamanan tiba.","Dokumentasikan kejadian dengan foto dan log.","Laporkan ke manajemen dan ikuti prosedur incident response."] },
+
+  { code:"28", prio:"Kritis", tipe:"Semua",
+    desc:"Area NVRAM tidak dapat diakses – SOH tidak dapat diperbarui",
+    komponen:["NVRAM","Board Kontrol"],
+    solusi:["Lakukan power cycle (matikan dan hidupkan ATM).","Catat semua hitungan dispense sebelum prosedur ini karena data mungkin hilang.","Jika NVRAM rusak permanen, perlu penggantian board kontrol.","Hubungi NCR Support."] },
+
+  { code:"29", prio:"Kritis", tipe:"Stacking",
+    desc:"Timing disk transport presenter tidak beroperasi dengan benar atau motor presenter gagal",
+    komponen:["Motor Presenter","Timing Disk Presenter","Sensor Timing Presenter"],
+    solusi:["Periksa timing disk presenter (kotoran atau kerusakan fisik).","Bersihkan sensor timing disk presenter.","Uji motor transport presenter.","Ganti komponen yang rusak."] },
+
+  { code:"30", prio:"Tinggi", tipe:"Semua",
+    desc:"Salah satu sensor transport presenter gagal bersih atau terblokir",
+    komponen:["Sensor Transport Presenter (TSEN)"],
+    solusi:["Identifikasi sensor mana yang bermasalah dari kode M_DATA.","Bersihkan sensor tersebut dengan blower atau kain bebas serat.","Periksa apakah ada uang yang menyumbat area sensor.","Ganti sensor jika tidak dapat diperbaiki."] },
+
+  { code:"31", prio:"Info", tipe:"Semua",
+    desc:"Reserved – dicadangkan untuk penggunaan masa mendatang",
+    komponen:[],
+    solusi:["Kode ini dicadangkan (reserved). Jika muncul, konsultasikan dengan NCR Support."] },
+
+  { code:"32", prio:"Kritis", tipe:"Semua",
+    desc:"Heartbeat pada execution processor gagal – execution processor tidak merespons",
+    komponen:["Execution Processor Board","Power Supply"],
+    solusi:["Lakukan power cycle ATM (matikan dan hidupkan kembali).","Periksa koneksi board execution processor.","Periksa power supply ke execution processor.","Jika berlanjut, ganti execution processor board.","Hubungi NCR Support."] },
+
+  { code:"33", prio:"Kritis", tipe:"Stacking",
+    desc:"Kegagalan komunikasi pada bus I2C execution processor atau kegagalan pick interface. ATAU: menandakan aktivasi serangan Fluditi (anti-sabotage)",
+    komponen:["I2C Bus","Pick Interface","Keamanan Fluditi"],
+    solusi:["Periksa koneksi I2C antara board-board di dalam dispenser.","Periksa pick interface ke pick module.","JIKA SERANGAN FLUDITI TERDETEKSI: Isolasi ATM segera. Hubungi NCR Security. Dokumentasikan kejadian."] },
+
+  { code:"34", prio:"Menengah", tipe:"Stacking",
+    desc:"Operasi 'present bills' dilakukan tanpa ada uang yang tersusun (stacked), ATAU perintah RETRACT diberikan padahal tidak ada uang yang sedang dipresentasikan",
+    komponen:["Presenter","Logika Operasi Host","Sensor Stack Transport"],
+    solusi:["Periksa urutan operasi: pastikan perintah STACK dilakukan sebelum PRESENT.","Periksa sensor stack transport apakah berfungsi dengan benar.","Verifikasi logika aplikasi host yang mengirim perintah.","Jika terjadi berulang, periksa firmware dispenser."] },
+
+  { code:"35", prio:"Tinggi", tipe:"Stacking",
+    desc:"Operasi tidak selesai karena daya AC dan DC 24V terputus melalui interlock pada pintu akses ATM",
+    komponen:["Interlock Pintu ATM","Power Supply"],
+    solusi:["Pastikan pintu ATM tertutup rapat dan interlock aktif.","Periksa koneksi kabel interlock.","Setelah pintu ditutup, lakukan CLEAR dan operasikan ulang."] },
+
+  { code:"36", prio:"Info", tipe:"Stacking",
+    desc:"Pick valve test tidak dilakukan karena kaset masih terpasang – kaset harus dilepas dahulu",
+    komponen:["Pick Valve","Kaset"],
+    solusi:["Lepas semua kaset dari pick module sebelum menjalankan pick valve test.","Setelah kaset dilepas, jalankan kembali pick valve test.","Pasang kembali kaset setelah pengujian selesai."] },
+
+  { code:"37", prio:"Info", tipe:"Semua",
+    desc:"TI (Tamper Indicating) service diaktifkan (switched ON) – unit dalam mode layanan TI",
+    komponen:["TI Service Mode"],
+    solusi:["Unit sedang dalam mode TI service untuk keperluan perawatan.","Selesaikan pekerjaan service yang diperlukan.","Matikan TI service setelah semua pekerjaan selesai.","Pastikan unit kembali ke mode operasi normal."] },
+
+  { code:"38", prio:"Info", tipe:"Semua",
+    desc:"TI (Tamper Indicating) service dinonaktifkan (switched OFF) – unit kembali ke mode operasi normal",
+    komponen:["TI Service Mode"],
+    solusi:["TI service telah dimatikan. Unit kembali beroperasi normal.","Verifikasi semua fungsi unit berjalan baik setelah mode TI dinonaktifkan."] },
+
+  { code:"39", prio:"Kritis", tipe:"Semua",
+    desc:"LVDT/NTS atau sirkuit terkait mengalami malfungsi",
+    komponen:["Sensor LVDT/NTS","Sirkuit Pengukur","Kabel Sensor"],
+    solusi:["Bersihkan sensor LVDT/NTS dengan kain bebas serat.","Periksa koneksi kabel sensor.","Lakukan ulang prosedur 'Learn Bill Parameters'.","Ganti sensor LVDT/NTS jika rusak."] },
+
+  { code:"40", prio:"Tinggi", tipe:"Semua",
+    desc:"Parameter bill belum diatur – terjadi saat power-up pertama atau NVRAM corruption dan reinisialisasi",
+    komponen:["NVRAM","Konfigurasi Bill","Learn Parameters"],
+    solusi:["Lakukan prosedur 'Learn Bill Parameters' untuk semua kaset.","Atur bill widths dan singularities sesuai denominasi yang digunakan.","Atur bill stack order.","Simpan konfigurasi ke NVRAM."] },
+
+  { code:"41", prio:"Menengah", tipe:"Semua",
+    desc:"Percobaan pick dari kaset di pick module yang telah dinonaktifkan untuk pengisian ulang in-service",
+    komponen:["Pick Module","Manajemen Replenishment"],
+    solusi:["Aktifkan kembali pick module setelah proses pengisian ulang selesai.","Pastikan prosedur replenishment diikuti dengan benar."] },
+
+  { code:"42", prio:"Kritis", tipe:"USB S1",
+    desc:"Dispenser belum diautentikasi oleh modul PC Core (khusus USB S1)",
+    komponen:["PC Core Module","Autentikasi USB S1","Kabel USB"],
+    solusi:["Periksa koneksi USB antara dispenser dan PC Core.","Restart PC Core module.","Lakukan prosedur autentikasi ulang dispenser.","Jika berlanjut, hubungi NCR Support."] },
+
+  { code:"43", prio:"Kritis", tipe:"USB S1",
+    desc:"Serial number control board dispenser berubah dan belum diotorisasi (khusus USB S1) – terjadi setelah penggantian board",
+    komponen:["Control Board","Otorisasi Serial Number"],
+    solusi:["Lakukan prosedur otorisasi serial number baru melalui software NCR.","Jika control board baru diganti, registrasikan serial number baru ke sistem.","Hubungi NCR Support untuk otorisasi resmi."] },
+
+  { code:"146", prio:"Kritis", tipe:"Semua",
+    desc:"SDC link failure – kegagalan sambungan komunikasi SDC (Secure Device Connection)",
+    komponen:["SDC Link","Kabel Komunikasi SDC","SDC Board"],
+    solusi:["Periksa koneksi kabel SDC dan bersihkan konektor.","Lakukan power cycle ATM.","Jika berlanjut, ganti SDC board atau kabel SDC.","Hubungi NCR Support jika masih gagal."] },
+];
+
+// ═══════════════════════════════════════════════════════════
+// DATA – CARD READER (IMCRW / UIMCRW)
+// ═══════════════════════════════════════════════════════════
+const CARDREADER_DATA = [
+  { code:"00", prio:"Normal", tipe:"Semua",
+    desc:"Tidak ada error – operasi berhasil",
+    komponen:[],
+    solusi:["Tidak perlu tindakan. Sistem berjalan normal."] },
+
+  { code:"01", prio:"Tinggi", tipe:"MCRW",
+    desc:"Track magnetik kosong (blank) – tidak ada data pada track kartu",
+    komponen:["Head Baca Magnetik","Track Kartu"],
+    solusi:["Bersihkan head baca dengan cleaning card yang dibasahi IPA 70%.","Minta nasabah menggunakan kartu yang berbeda.","Jika berulang terus, ganti head baca magnetik."] },
+
+  { code:"02", prio:"Menengah", tipe:"MCRW",
+    desc:"Track tidak didukung atau SCIF write tidak didukung oleh unit",
+    komponen:["Konfigurasi Track","SCIF Module"],
+    solusi:["Periksa konfigurasi track yang didukung (track 1, 2, atau 3).","Untuk SCIF write, verifikasi firmware versi mendukung fitur ini."] },
+
+  { code:"03", prio:"Tinggi", tipe:"MCRW",
+    desc:"Read error – kesalahan saat membaca data magnetik dari kartu",
+    komponen:["Head Baca Magnetik","Track Kartu"],
+    solusi:["Bersihkan head baca dengan cleaning card IPA.","Minta nasabah coba dengan kartu lain.","Ganti head baca jika error terus berlanjut."] },
+
+  { code:"04", prio:"Tinggi", tipe:"MCRW",
+    desc:"Write error – kesalahan saat menulis data ke kartu magnetik",
+    komponen:["Head Tulis Magnetik","Kartu HiCo"],
+    solusi:["Bersihkan head tulis magnetik.","Verifikasi apakah kartu mendukung HiCo write.","Ganti head tulis jika diperlukan."] },
+
+  { code:"05", prio:"Menengah", tipe:"Semua",
+    desc:"Tidak ada kartu di reader (posisi stage) saat perintah diterima",
+    komponen:["Sensor PD1/PD2/PD3","Throat"],
+    solusi:["Pastikan kartu dimasukkan sepenuhnya ke dalam slot.","Bersihkan sensor PD1, PD2, dan PD3.","Periksa mekanisme throat dari kotoran atau benda asing."] },
+
+  { code:"06", prio:"Tinggi", tipe:"Semua",
+    desc:"Kartu diambil nasabah saat proses capture berlangsung",
+    komponen:["Sensor Kartu","Mekanisme Capture"],
+    solusi:["Periksa sensor kartu apakah berfungsi normal.","Jika kejadian berulang, kemungkinan ada sabotase – verifikasi log keamanan.","Informasikan nasabah untuk tidak menarik kartu saat proses berlangsung."] },
+
+  { code:"07", prio:"Kritis", tipe:"Semua",
+    desc:"Exit shutter macet dalam posisi TERBUKA setelah kartu di-stage",
+    komponen:["Exit Shutter","Sensor Shutter Open","Motor/Solenoid Shutter"],
+    solusi:["Periksa hambatan fisik yang menghalangi shutter menutup.","Bersihkan mekanisme shutter.","Uji motor/solenoid shutter.","Ganti unit shutter jika rusak."] },
+
+  { code:"08", prio:"Tinggi", tipe:"Semua",
+    desc:"Kegagalan switch shutter terdeteksi",
+    komponen:["Switch Shutter","Kabel Switch"],
+    solusi:["Bersihkan switch shutter dari kotoran.","Periksa koneksi kabel switch.","Ganti switch shutter jika rusak."] },
+
+  { code:"09", prio:"Info", tipe:"Semua",
+    desc:"Pemulihan error berhasil – kartu tidak valid telah berhasil di-eject",
+    komponen:[],
+    solusi:["Status informasi saja. ATM berhasil pulih sendiri.","Monitor frekuensi kejadian melalui log.","Jika sangat sering terjadi, periksa kondisi kartu yang digunakan nasabah."] },
+
+  { code:"10", prio:"Kritis", tipe:"Semua",
+    desc:"Exit shutter macet dalam posisi TERTUTUP – saat entry atau eject kartu",
+    komponen:["Exit Shutter","Sensor Shutter Closed","Rel Shutter"],
+    solusi:["Periksa hambatan fisik pada rel shutter.","Bersihkan rel dan seluruh mekanisme shutter.","Uji sensor closed shutter.","Ganti unit shutter jika diperlukan."] },
+
+  { code:"11", prio:"Kritis", tipe:"Semua",
+    desc:"Kartu macet (card jam) di dalam unit ATAU kartu tidak valid di throat saat startup",
+    komponen:["Throat","Mekanisme Transport Kartu","Jalur Kartu"],
+    solusi:["Buka akses card reader dengan hati-hati.","Keluarkan kartu yang macet secara manual.","Bersihkan jalur transport kartu dari kotoran.","Lakukan perintah CLEAR/Reset setelah perbaikan."] },
+
+  { code:"12", prio:"Tinggi", tipe:"Semua",
+    desc:"Kartu ter-capture setelah gagal eject",
+    komponen:["Mekanisme Eject","Mekanisme Capture","Capture Bin"],
+    solusi:["Keluarkan kartu dari capture bin.","Bersihkan jalur eject dari kotoran.","Verifikasi kondisi motor eject."] },
+
+  { code:"13", prio:"Kritis", tipe:"Semua",
+    desc:"Kemungkinan sabotase nasabah – kartu macet di throat, tidak bisa ditarik masuk",
+    komponen:["Throat","Sensor Anti-Tamper"],
+    solusi:["⚠ PERINGATAN KEAMANAN: Periksa adanya benda asing di slot kartu (alat skimming).","Dokumentasikan kejadian dengan foto.","Hubungi tim keamanan dan manajemen.","Laporkan sebagai insiden keamanan."] },
+
+  { code:"14", prio:"Kritis", tipe:"MCRW",
+    desc:"Terlalu banyak read error atau blank track berturut-turut – head baca kemungkinan aus atau sangat kotor",
+    komponen:["Head Baca Magnetik (Aus/Kotor)"],
+    solusi:["Bersihkan head baca dengan cleaning card yang dibasahi IPA 70%.","Lakukan 3–5 kali pembersihan berturut-turut.","Jika masih gagal, head baca kemungkinan sudah aus.","Ganti head baca magnetik."] },
+
+  { code:"15", prio:"Kritis", tipe:"MCRW",
+    desc:"Terlalu banyak write error berturut-turut",
+    komponen:["Head Tulis Magnetik"],
+    solusi:["Bersihkan head tulis.","Periksa tegangan supply ke head tulis.","Ganti head tulis magnetik."] },
+
+  { code:"16", prio:"Kritis", tipe:"Semua",
+    desc:"Terlalu banyak card jam berturut-turut – jalur transport kartu bermasalah",
+    komponen:["Mekanisme Transport Kartu","Roller Transport Kartu"],
+    solusi:["Bersihkan jalur transport kartu secara menyeluruh.","Periksa dan ganti roller yang aus, retak, atau keras.","Pastikan tidak ada kotoran atau benda asing di jalur kartu."] },
+
+  { code:"17", prio:"Kritis", tipe:"Semua",
+    desc:"Terlalu banyak shutter macet tertutup berturut-turut",
+    komponen:["Shutter","Motor/Solenoid Shutter","Sensor Shutter"],
+    solusi:["Bersihkan mekanisme shutter secara menyeluruh.","Lumasi engsel shutter jika diperlukan.","Ganti motor/solenoid shutter.","Jika perlu, ganti unit shutter sepenuhnya."] },
+
+  { code:"18", prio:"Kritis", tipe:"Semua",
+    desc:"Kartu macet saat proses capture – gagal eject sama sekali",
+    komponen:["Mekanisme Capture/Eject","Jalur Capture"],
+    solusi:["Buka akses card reader.","Keluarkan kartu secara manual dengan sangat hati-hati.","Bersihkan seluruh jalur capture.","Reset unit setelah perbaikan."] },
+
+  { code:"19", prio:"Kritis", tipe:"Semua",
+    desc:"Terlalu banyak kartu tidak valid berturut-turut",
+    komponen:["Sensor Validasi","Head Baca","Anti-Skimming"],
+    solusi:["Bersihkan sensor dan head baca.","PERIKSA adanya skimmer atau alat manipulasi di slot kartu.","Verifikasi konfigurasi validasi kartu.","Hubungi tim keamanan jika mencurigakan."] },
+
+  { code:"20", prio:"Kritis", tipe:"Semua",
+    desc:"Unit masih dalam status INOPERATIVE (bukan dari mode diagnostik)",
+    komponen:["Unit Card Reader"],
+    solusi:["Selesaikan semua penyebab error sebelumnya.","Lakukan reset / power cycle ATM.","Jika masih inoperative, hubungi NCR Support."] },
+
+  { code:"21", prio:"Info", tipe:"Semua",
+    desc:"Tidak ada kartu yang dimasukkan dalam 10 detik – timeout",
+    komponen:[],
+    solusi:["Timeout normal. Tidak perlu tindakan jika nasabah memang tidak memasukkan kartu."] },
+
+  { code:"22", prio:"Tinggi", tipe:"Semua",
+    desc:"Kecepatan transport kartu di luar spesifikasi – TERLALU CEPAT",
+    komponen:["Motor Transport Kartu","Kontrol Kecepatan Motor"],
+    solusi:["Periksa tegangan supply motor.","Kalibrasi kecepatan motor sesuai spesifikasi.","Ganti motor jika tidak dapat dikalibrasi."] },
+
+  { code:"23", prio:"Info", tipe:"Semua",
+    desc:"Kecepatan kartu dalam +3% dari batas atas (sedikit di atas normal)",
+    komponen:["Motor Transport Kartu"],
+    solusi:["Monitor kondisi ini. Jika berlanjut atau memburuk, jadwalkan kalibrasi kecepatan motor."] },
+
+  { code:"24", prio:"Normal", tipe:"Semua",
+    desc:"Kecepatan kartu dalam ±1% – optimal dan normal",
+    komponen:[],
+    solusi:["Normal. Tidak perlu tindakan."] },
+
+  { code:"25", prio:"Info", tipe:"Semua",
+    desc:"Kecepatan kartu dalam -3% dari batas bawah (sedikit di bawah normal)",
+    komponen:["Motor Transport Kartu"],
+    solusi:["Monitor kondisi ini. Jika berlanjut, jadwalkan kalibrasi kecepatan motor."] },
+
+  { code:"26", prio:"Tinggi", tipe:"Semua",
+    desc:"Kecepatan transport kartu di luar spesifikasi – TERLALU LAMBAT",
+    komponen:["Motor Transport Kartu","Beban Mekanis Roller"],
+    solusi:["Periksa hambatan mekanis (roller kotor atau tersumbat).","Bersihkan jalur transport dari kotoran.","Kalibrasi atau ganti motor transport."] },
+
+  { code:"27", prio:"Menengah", tipe:"Semua",
+    desc:"Kartu tidak valid terdeteksi",
+    komponen:["Sensor Validasi Kartu","Head Baca"],
+    solusi:["Bersihkan sensor kartu.","Pastikan kartu standar ISO yang digunakan.","Periksa konfigurasi tipe kartu yang diterima reader."] },
+
+  { code:"28", prio:"Kritis", tipe:"Semua",
+    desc:"Fraud throat mendeteksi hambatan ATAU fraud throat failure – kemungkinan ada alat skimming",
+    komponen:["Fraud Throat","Anti-Skimming Module"],
+    solusi:["⚠⚠ PERINGATAN KEAMANAN TINGGI: SEGERA periksa slot kartu dari benda asing/skimmer.","Jangan izinkan nasabah menggunakan ATM.","Bersihkan fraud throat jika hanya kotoran biasa.","Jika ada skimmer: isolasi ATM, hubungi kepolisian dan tim keamanan.","Dokumentasikan dengan foto sebelum menyentuh apapun."] },
+
+  { code:"29", prio:"Kritis", tipe:"Semua",
+    desc:"Terdeteksi kartu dimasukkan secara manual (fraud) – bukan oleh mekanisme transport",
+    komponen:["Anti-Skimming Sensor","Deteksi Manipulasi"],
+    solusi:["⚠⚠ KEMUNGKINAN BESAR ADA SKIMMING AKTIF.","Hubungi tim keamanan SEGERA.","Dokumentasikan dan laporkan sebagai insiden keamanan.","Jangan operasikan ATM sebelum ada clearance dari tim keamanan."] },
+
+  { code:"30", prio:"Tinggi", tipe:"CIM/MM",
+    desc:"MM (Magnetic Measurement) tidak valid – pengukuran kualitas sinyal magnetik gagal",
+    komponen:["MM Sensor","Mekanisme Pengukuran","CIM Module"],
+    solusi:["Bersihkan sensor MM.","Lakukan CIM Service Test.","Kalibrasi posisi sensor MM."] },
+
+  { code:"31", prio:"Kritis", tipe:"CIM/MM",
+    desc:"MM Module rusak atau defektif",
+    komponen:["MM Module Board"],
+    solusi:["Lakukan CIM Self Test untuk konfirmasi kerusakan.","Ganti MM module."] },
+
+  { code:"33", prio:"Kritis", tipe:"CIM/Smart",
+    desc:"CIM/MM: service test gagal ATAU Smart: contact unit failure (kegagalan unit kontak smart card)",
+    komponen:["CIM/MM Module","Contact Unit Smart Card"],
+    solusi:["Untuk CIM/MM: lakukan service test ulang; ganti module jika gagal.","Untuk Smart Card: periksa mekanisme kontak; bersihkan contact pins; ganti contact unit jika rusak."] },
+
+  { code:"34", prio:"Kritis", tipe:"CIM/MM",
+    desc:"Kegagalan komunikasi CIM/MM module saat service test",
+    komponen:["CIM/MM Module","Kabel Komunikasi CIM"],
+    solusi:["Periksa koneksi kabel CIM/MM module.","Reset module.","Ganti CIM/MM module jika diperlukan."] },
+
+{ code:"35", prio:"Tinggi", tipe:"CIM/MM",
+    desc:"Error pada data track 3 – kesalahan pembacaan atau data track 3 tidak valid (CIM/MM)",
+    komponen:["Head Baca Track 3","Track 3 Kartu","CIM/MM Module"],
+    solusi:["Bersihkan head baca track 3 dengan cleaning card IPA.","Verifikasi format data track 3 kartu nasabah.","Lakukan CIM Service Test untuk memastikan kondisi module.","Jika berlanjut, periksa atau ganti head baca track 3."] },
+
+{ code:"37", prio:"Info", tipe:"Diagnostik",
+    desc:"Fitur CROPF tidak didukung oleh unit ini (hanya muncul saat diagnostik)",
+    komponen:["CROPF Feature","Firmware"],
+    solusi:["Informasi saja – CROPF tidak tersedia di unit ini.","Verifikasi versi firmware yang mendukung CROPF jika fitur diperlukan.","Update firmware jika diperlukan."] },
+
+  { code:"38", prio:"Tinggi", tipe:"Semua",
+    desc:"LFCC bin (Low Friction Capture Cassette) hampir penuh atau PENUH",
+    komponen:["LFCC Capture Bin"],
+    solusi:["Kosongkan LFCC bin segera.","Ikuti prosedur pengosongan yang benar.","Catat jumlah kartu yang tersita untuk laporan."] },
+
+  { code:"40", prio:"Tinggi", tipe:"Semua",
+    desc:"LFCC bin tidak terpasang atau tidak dikonfigurasi",
+    komponen:["LFCC Bin","Konfigurasi"],
+    solusi:["Pasang LFCC bin dengan benar hingga terkunci.","Konfigurasi LFCC bin di supervisor software."] },
+
+{ code:"41", prio:"Menengah", tipe:"Diagnostik",
+    desc:"Kegagalan fitur CROPF – format perintah tidak valid (hanya muncul saat diagnostik)",
+    komponen:["CROPF Module","Firmware"],
+    solusi:["Periksa format perintah CROPF yang dikirim.","Verifikasi kompatibilitas firmware dengan CROPF.","Update firmware jika diperlukan."] },
+
+  { code:"42", prio:"Kritis", tipe:"UIMCRW",
+    desc:"Perangkat tidak terotorisasi (khusus UIMCRW) – autentikasi dengan PC Core gagal",
+    komponen:["Modul Otorisasi UIMCRW","Sertifikat Perangkat"],
+    solusi:["Lakukan prosedur otorisasi ulang perangkat UIMCRW melalui software NCR.","Hubungi NCR Support untuk bantuan otorisasi."] },
+
+  { code:"50", prio:"Tinggi", tipe:"Smart/SAM",
+    desc:"Smart/SAM/Memory card tidak berada pada posisi SCRW stage yang benar",
+    komponen:["SCRW Stage Mechanism","Sensor Posisi Stage"],
+    solusi:["Periksa mekanisme stage smart card.","Bersihkan sensor posisi stage.","Reset dan coba lagi."] },
+
+  { code:"51", prio:"Kritis", tipe:"Smart",
+    desc:"Kontak smart card diturunkan – tidak bisa capture kartu smart",
+    komponen:["Contact Unit Smart Card","Aktuator Kontak"],
+    solusi:["Periksa mekanisme contact unit smart card.","Bersihkan contact block dari kotoran.","Ganti contact unit jika rusak."] },
+
+{ code:"52", prio:"Tinggi", tipe:"Smart",
+    desc:"Kode perintah Smart/SAM/Memory card tidak valid – ATAU error transmisi terjadi",
+    komponen:["Smart Card Interface","SCIF Module","Kabel Komunikasi"],
+    solusi:["Verifikasi kode perintah smart card yang dikirim ke reader.","Periksa koneksi kabel SCIF.","Reset SCIF module.","Coba dengan smart card yang berbeda untuk memastikan masalah bukan pada kartu."] },
+
+{ code:"53", prio:"Tinggi", tipe:"Smart",
+    desc:"Data perintah Smart/SAM/Memory card tidak valid – ATAU kartu dalam kondisi switched off",
+    komponen:["Smart Card","SCIF Module"],
+    solusi:["Verifikasi format data perintah smart card.","Pastikan kartu masih tertancap dengan benar di posisi kontak.","Periksa apakah kartu dalam kondisi powered off – lakukan power on ulang ke kartu.","Coba dengan kartu yang berbeda."] },
+
+  { code:"54", prio:"Kritis", tipe:"Smart",
+    desc:"SCIF tidak dikonfigurasi atau tidak merespons – parameter kartu tidak valid",
+    komponen:["SCIF Module","Konfigurasi SCIF"],
+    solusi:["Periksa konfigurasi SCIF module.","Reset SCIF module.","Verifikasi tipe kartu smart yang didukung.","Ganti SCIF board jika perlu."] },
+
+  { code:"55", prio:"Tinggi", tipe:"Smart",
+    desc:"Timeout respons SCIF terlampaui",
+    komponen:["SCIF Module","Smart Card","Power Supply SCIF"],
+    solusi:["Periksa koneksi SCIF.","Coba dengan smart card yang berbeda.","Reset SCIF module."] },
+
+{ code:"56", prio:"Menengah", tipe:"Smart",
+    desc:"Reader sedang dalam mode Smart/SAM/Memory card (SCRW) – bukan dalam mode MCRW",
+    komponen:["Mode Operasi Reader"],
+    solusi:["Reader sedang aktif dalam mode SCRW (smart card mode).","Keluarkan reader dari mode SCRW terlebih dahulu sebelum mengirim perintah MCRW.","Kirim perintah yang sesuai dengan mode reader saat ini."] },
+
+{ code:"57", prio:"Menengah", tipe:"Smart",
+    desc:"Panjang respons Smart/SAM/Memory card tidak valid – response code (length) error",
+    komponen:["Smart Card","SCIF Module","Firmware"],
+    solusi:["Periksa protokol komunikasi smart card yang digunakan.","Verifikasi tipe dan standar kartu (EMV, ISO 7816).","Reset SCIF module.","Jika berlanjut, periksa versi firmware SCIF."] },
+
+{ code:"65", prio:"Menengah", tipe:"Smart",
+    desc:"Format perintah Smart Card tidak valid – invalid smart card command format",
+    komponen:["SCIF Module","Firmware","Format Perintah EMV"],
+    solusi:["Verifikasi format perintah EMV/smart card yang dikirim.","Periksa apakah perintah sesuai standar ISO 7816.","Periksa versi firmware SCIF.","Konsultasikan dengan NCR Support jika format perintah sudah benar."] },
+
+  { code:"77", prio:"Kritis", tipe:"Smart",
+    desc:"Contact unit failure – kegagalan unit kontak smart card",
+    komponen:["Contact Unit Smart Card","Contact Pins"],
+    solusi:["Periksa mekanisme kontak smart card.","Bersihkan contact pins dari oksidasi.","Ganti contact unit."] },
+
+  { code:"78", prio:"Kritis", tipe:"Smart",
+    desc:"Kegagalan pergerakan smart/SAM/memory card",
+    komponen:["Motor Transport Smart Card","Jalur Smart Card"],
+    solusi:["Periksa hambatan fisik di jalur smart card.","Uji motor pergerakan smart card.","Ganti motor jika rusak."] },
+
+{ code:"79", prio:"Tinggi", tipe:"Smart",
+    desc:"Kegagalan switch off Smart/SAM/Memory card – kartu tidak bisa dimatikan (powered off)",
+    komponen:["Sirkuit Power Smart Card","SCIF Board","Contact Unit"],
+    solusi:["Periksa sirkuit power smart card di dalam reader.","Reset SCIF module.","Periksa kondisi contact unit – bersihkan contact pins.","Jika berlanjut, ganti SCIF board."] },
+
+{ code:"80", prio:"Menengah", tipe:"Smart",
+    desc:"Smart/SAM/Memory card dilepas (removed) saat sedang diproses – kartu dicabut nasabah",
+    komponen:["Sensor Kartu Smart","Contact Unit"],
+    solusi:["Informasikan nasabah agar tidak mencabut kartu selama proses transaksi berlangsung.","Bersihkan sensor kartu smart.","Periksa apakah contact unit mencengkeram kartu dengan benar.","Monitor frekuensi kejadian – jika sering, periksa mekanisme clamp kartu."] },
+
+{ code:"81", prio:"Tinggi", tipe:"Smart",
+    desc:"Smart/SAM/Memory card tidak memberikan respons sama sekali – no response dari kartu",
+    komponen:["Smart Card","Contact Unit","Power Supply Smart Card"],
+    solusi:["Pastikan contact pins bersih dan tidak teroksidasi – bersihkan dengan cotton bud IPA.","Coba dengan smart card yang berbeda.","Periksa power supply ke smart card interface.","Periksa kondisi fisik kontak kartu.","Jika berlanjut, ganti contact unit."] },
+
+{ code:"82", prio:"Tinggi", tipe:"Smart",
+    desc:"Error transmisi Smart/SAM/Memory card – transmission error saat komunikasi dengan kartu",
+    komponen:["Smart Card Interface","Kabel Komunikasi SCIF","Contact Unit"],
+    solusi:["Periksa koneksi kabel interface SCIF.","Bersihkan contact pins kartu dari debu dan oksidasi.","Reset SCIF module.","Coba dengan kartu yang berbeda untuk memastikan masalah bukan pada kartu."] },
+
+{ code:"83", prio:"Menengah", tipe:"Smart",
+    desc:"Smart/SAM/Memory card dalam kondisi switched off – kartu tidak aktif",
+    komponen:["Smart Card Power Circuit","SCIF"],
+    solusi:["Lakukan Power On ulang ke smart card.","Periksa sirkuit aktivasi power smart card.","Pastikan kartu kompatibel dengan reader.","Reset SCIF module."] },
+
+{ code:"84", prio:"Menengah", tipe:"Smart",
+    desc:"Smart/SAM/Memory card – tipe atau parameter tidak legal/tidak didukung",
+    komponen:["Konfigurasi Smart Card","Tipe Kartu"],
+    solusi:["Verifikasi tipe kartu yang didukung oleh reader ini.","Periksa konfigurasi tipe kartu di supervisor software.","Perbarui konfigurasi jika kartu tipe baru perlu ditambahkan.","Minta nasabah menggunakan kartu yang kompatibel."] },
+
+  { code:"87", prio:"Kritis", tipe:"CIM",
+    desc:"CIM self test gagal",
+    komponen:["CIM Module"],
+    solusi:["Lakukan CIM Self Test ulang.","Periksa CIM module secara fisik.","Ganti CIM module jika self test terus gagal."] },
+
+  { code:"88", prio:"Kritis", tipe:"CIM",
+    desc:"CIM security module rusak atau defektif",
+    komponen:["CIM Security Module"],
+    solusi:["Ganti CIM security module.","Ikuti prosedur keamanan ketat saat penggantian.","Hubungi NCR Support."] },
+
+{ code:"89", prio:"Kritis", tipe:"CIM",
+    desc:"Kegagalan komunikasi CIM security module – communications failure",
+    komponen:["CIM Security Module","Kabel Komunikasi CIM Security"],
+    solusi:["Periksa koneksi kabel CIM security module.","Pastikan konektor terpasang dengan benar dan tidak longgar.","Reset unit (power cycle).","Jika berlanjut, ganti CIM security module.","Hubungi NCR Support – penanganan CIM security memerlukan otorisasi khusus."] },
+
+  { code:"90", prio:"Kritis", tipe:"CIM",
+    desc:"CIM Interface PCB rusak atau defektif",
+    komponen:["CIM Interface PCB"],
+    solusi:["Ganti CIM Interface PCB.","Hubungi NCR Support."] },
+
+  { code:"91", prio:"Kritis", tipe:"CIM",
+    desc:"Kegagalan komunikasi CIM Interface PCB",
+    komponen:["CIM Interface PCB","Kabel Komunikasi CIM"],
+    solusi:["Periksa koneksi kabel.","Reset unit.","Ganti CIM Interface PCB."] },
+
+  { code:"96", prio:"Kritis", tipe:"UIMCRW",
+    desc:"Komunikasi perangkat INOPERATIVE (khusus UIMCRW) – koneksi USB/RS232 terputus",
+    komponen:["Kabel USB/RS232","Port Komunikasi","PC Core"],
+    solusi:["Periksa koneksi kabel USB/RS232 dari reader ke PC Core.","Coba port yang berbeda.","Lakukan power cycle ATM.","Ganti kabel komunikasi jika rusak."] },
+
+  { code:"97", prio:"Info", tipe:"UIMCRW",
+    desc:"Komunikasi perangkat OPERATIVE kembali (khusus UIMCRW) – koneksi pulih",
+    komponen:[],
+    solusi:["Koneksi telah pulih. Monitor stabilitas koneksi ke depannya.","Periksa penyebab koneksi sempat terputus."] },
+
+  { code:"98", prio:"Tinggi", tipe:"UIMCRW",
+    desc:"Perangkat terhubung kembali namun STATE HILANG (khusus UIMCRW)",
+    komponen:["Koneksi USB/RS232","Power Supply","State Machine"],
+    solusi:["State hilang akibat koneksi terputus atau power failure.","Inisialisasi ulang perangkat UIMCRW.","Verifikasi semua konfigurasi masih benar."] },
+
+  { code:"99", prio:"Tinggi", tipe:"UIMCRW",
+    desc:"Perangkat terhubung kembali sebagai PERANGKAT BARU – semua SOH dan Tallies dikosongkan (khusus UIMCRW)",
+    komponen:["Koneksi USB","SOH","Tallies/Counter"],
+    solusi:["Perangkat terdeteksi sebagai unit baru oleh sistem.","Konfigurasi ulang perangkat UIMCRW.","Semua tallies (hitungan) telah di-reset ke nol – catat untuk laporan.","Verifikasi semua parameter konfigurasi."] },
+];
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let activeTab = 'dispenser';
+let searchQuery = '';
+let activeFilters = { dispenser: 'semua', cardreader: 'semua' };
+
+// ═══════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════
+function prioBadgeClass(p) {
+  return 'badge-' + p.toLowerCase();
+}
+function cardClass(p) {
+  return p.toLowerCase();
+}
+function prioIcon(p) {
+  const icons = { Kritis:'🔴', Tinggi:'🟠', Menengah:'🟡', Normal:'🟢', Info:'🔵' };
+  return icons[p] || '⚪';
+}
+function hl(text, q) {
+  if (!q) return escHtml(text);
+  const esc = escHtml(text);
+  const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+  return esc.replace(re, '<mark style="background:#FFF176;border-radius:3px;padding:0 2px">$1</mark>');
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function filterData(data, query, prio) {
+  return data.filter(item => {
+    const prioMatch = prio === 'semua' || item.prio.toLowerCase() === prio;
+    if (!prioMatch) return false;
+    if (!query) return true;
+    const q = query.toLowerCase();
+    return item.code.includes(q) ||
+           item.desc.toLowerCase().includes(q) ||
+           item.solusi.some(s => s.toLowerCase().includes(q)) ||
+           item.komponen.some(k => k.toLowerCase().includes(q)) ||
+           item.tipe.toLowerCase().includes(q) ||
+           item.prio.toLowerCase().includes(q);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════
+function buildStats(data, tabId) {
+  const counts = {};
+  data.forEach(d => { counts[d.prio] = (counts[d.prio]||0) + 1; });
+  const el = document.getElementById('stats-' + tabId);
+  const order = [['Kritis','#C00000'],['Tinggi','#C55A11'],['Menengah','#856404'],['Normal','#2E7D32'],['Info','#2E75B6']];
+  el.innerHTML = `<div class="stat-pill"><span class="stat-dot" style="background:var(--navy)"></span>Total: <span class="stat-count">${data.length}</span></div>` +
+    order.map(([p,c]) => counts[p] ? `<div class="stat-pill"><span class="stat-dot" style="background:${c}"></span>${p}: <span class="stat-count">${counts[p]}</span></div>` : '').join('');
+}
+
+function buildFilters(tabId) {
+  const el = document.getElementById('filter-' + tabId);
+  const filters = [
+    ['semua','Semua','chip-all'],
+    ['kritis','🔴 Kritis','chip-kritis'],
+    ['tinggi','🟠 Tinggi','chip-tinggi'],
+    ['menengah','🟡 Menengah','chip-menengah'],
+    ['normal','🟢 Normal/Info','chip-normal'],
+  ];
+  el.innerHTML = `<span class="filter-label">Filter:</span>` +
+    filters.map(([val, label, cls]) =>
+      `<button class="chip ${cls} ${activeFilters[tabId]===val?'active':''}"
+        onclick="setFilter('${tabId}','${val}')">${label}</button>`
+    ).join('');
+}
+
+function buildCards(data, tabId, query) {
+  const grid = document.getElementById('grid-' + tabId);
+  const countEl = document.getElementById('count-' + tabId);
+
+  if (data.length === 0) {
+    countEl.textContent = '';
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="es-icon">🔍</div>
+      <h3>Tidak ditemukan</h3>
+      <p>Coba kata kunci atau filter yang berbeda</p>
+    </div>`;
+    return;
+  }
+
+  countEl.innerHTML = `Menampilkan <span>${data.length}</span> kode`;
+
+  grid.innerHTML = data.map(item => {
+    const shortSolusi = item.solusi[0].length > 80
+      ? item.solusi[0].slice(0,80) + '…'
+      : item.solusi[0];
+    const kompoStr = item.komponen.slice(0,2).join(' · ') + (item.komponen.length > 2 ? ` +${item.komponen.length-2}` : '');
+    return `
+    <div class="card ${cardClass(item.prio)}" onclick="openModal('${tabId}','${item.code}')">
+      <div class="card-header">
+        <div class="card-code">M-${item.code}</div>
+        <div class="card-meta">
+          <div class="card-title">${hl(item.desc, query)}</div>
+          <div class="card-badges">
+            <span class="badge ${prioBadgeClass(item.prio)}">${prioIcon(item.prio)} ${item.prio}</span>
+            <span class="badge badge-tipe">${item.tipe}</span>
+          </div>
+        </div>
+      </div>
+      ${item.komponen.length > 0 ? `
+      <div class="card-divider"></div>
+      <div class="card-body">
+        <div class="card-section">
+          <div class="section-label">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            Komponen
+          </div>
+          <div class="section-text">${hl(kompoStr, query)}</div>
+        </div>
+        <div class="card-section">
+          <div class="section-label">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Tindakan Pertama
+          </div>
+          <div class="section-text">${hl(shortSolusi, query)}</div>
+        </div>
+      </div>` : ''}
+      <div class="card-actions">
+        <button class="btn-detail">Lihat Detail Lengkap →</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function render(tabId) {
+  const data = tabId === 'dispenser' ? DISPENSER_DATA : CARDREADER_DATA;
+  const filtered = filterData(data, searchQuery, activeFilters[tabId]);
+  buildStats(data, tabId);
+  buildFilters(tabId);
+  buildCards(filtered, tabId, searchQuery);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════════════════
+function openModal(tabId, code) {
+  const data = tabId === 'dispenser' ? DISPENSER_DATA : CARDREADER_DATA;
+  const item = data.find(d => d.code === code);
+  if (!item) return;
+
+  document.getElementById('mCode').textContent = 'M-' + item.code;
+  document.getElementById('mTitle').textContent = item.desc;
+  document.getElementById('mBadges').innerHTML =
+    `<span class="badge ${prioBadgeClass(item.prio)}">${prioIcon(item.prio)} ${item.prio}</span>
+     <span class="badge badge-tipe">${item.tipe}</span>`;
+
+  const prio = item.prio.toLowerCase();
+  const prioLabel = { kritis:'⛔ Prioritas KRITIS – Tindakan Segera!', tinggi:'⚠️ Prioritas TINGGI – Segera Perbaiki', menengah:'📋 Prioritas MENENGAH – Perlu Perhatian', normal:'✅ Normal – Tidak Perlu Tindakan', info:'ℹ️ Informasi Status' };
+
+  let html = `<div class="prio-banner ${prio}">${prioLabel[prio]||''}</div>`;
+
+  html += `<div class="modal-section">
+    <div class="modal-section-title">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Deskripsi Lengkap
+    </div>
+    <div class="modal-section-text">${escHtml(item.desc)}</div>
+  </div>`;
+
+  if (item.komponen.length > 0) {
+    html += `<div class="modal-section">
+      <div class="modal-section-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Komponen / Bagian yang Bermasalah
+      </div>
+      <div>${item.komponen.map(k=>`<span class="komponen-tag">${escHtml(k)}</span>`).join('')}</div>
+    </div>`;
+  }
+
+  html += `<div class="modal-section">
+    <div class="modal-section-title">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Langkah Tindakan (${item.solusi.length} langkah)
+    </div>
+    <ul class="solusi-list">
+      ${item.solusi.map((s,i)=>`<li><span class="solusi-num">${i+1}</span><span>${escHtml(s)}</span></li>`).join('')}
+    </ul>
+  </div>`;
+
+  document.getElementById('mBody').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════════════
+// EVENT HANDLERS
+// ═══════════════════════════════════════════════════════════
+function setFilter(tabId, val) {
+  activeFilters[tabId] = val;
+  render(tabId);
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    activeTab = btn.dataset.tab;
+    document.getElementById('tab-' + activeTab).classList.add('active');
+    render(activeTab);
+  });
+});
+
+const searchInput = document.getElementById('searchInput');
+let searchTimer;
+searchInput.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    searchQuery = searchInput.value.trim();
+    render('dispenser');
+    render('cardreader');
+  }, 200);
+});
+
+document.getElementById('clearSearch').addEventListener('click', () => {
+  searchInput.value = '';
+  searchQuery = '';
+  render('dispenser');
+  render('cardreader');
+});
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault(); searchInput.focus();
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+render('dispenser');
+render('cardreader');
+</script>
+</body>
+</html>
