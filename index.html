@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NCR ATM — M-Status Checker</title>
+<title>Citius NCR | M-Status</title>
 <style>
   /* ── Reset & Base ───────────────────────────────────── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -51,10 +51,11 @@
   }
   .header-icon {
     width: 48px; height: 48px; flex-shrink: 0;
-    background: rgba(255,255,255,0.15);
+    background: #FFFFFF;
     border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     font-size: 26px;
+    padding: 6px;
   }
   .header-title h1 {
     font-size: 1.35rem; font-weight: 700; color: #fff;
@@ -381,12 +382,36 @@
 <!-- HEADER -->
 <header class="app-header">
   <div class="header-top">
-    <div class="header-icon">🏧</div>
-    <div class="header-title">
-      <h1>NCR ATM — M-Status Checker</h1>
-      <p>Referensi Error Code Offline · Currency Dispenser & Card Reader</p>
+    <div class="header-icon">
+      <svg viewBox="0 0 220 220" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="citiusBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1a2f7a"/>
+            <stop offset="100%" stop-color="#1f4fa8"/>
+          </linearGradient>
+          <linearGradient id="citiusGreenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1e6b2e"/>
+            <stop offset="100%" stop-color="#3fae4a"/>
+          </linearGradient>
+        </defs>
+        <path d="M150 30
+                 C 90 10, 30 55, 30 115
+                 C 30 175, 90 200, 145 185
+                 C 165 180, 170 155, 155 140
+                 C 140 128, 120 135, 110 145
+                 C 90 160, 65 145, 65 115
+                 C 65 85, 95 65, 120 78
+                 C 135 85, 150 78, 158 60
+                 C 165 45, 162 35, 150 30 Z"
+              fill="url(#citiusBlueGrad)"/>
+        <circle cx="180" cy="130" r="30" fill="url(#citiusGreenGrad)"/>
+      </svg>
     </div>
-    <div class="header-badge">APTRA 2.06 / NDC+ by Laska</div>
+    <div class="header-title">
+      <h1>NCR ATM | M-Status</h1>
+      <p>rev version v1.7.6</p>
+    </div>
+    <div class="header-badge">Citius Technical Support by Laska</div>
   </div>
 
   <!-- Search -->
@@ -400,11 +425,11 @@
   <div class="tabs">
     <button class="tab-btn active" data-tab="dispenser">
       <span class="tab-dot" style="background:#FFB347"></span>
-      💵 Currency Dispenser
+      💵 S1 Dispenser
     </button>
     <button class="tab-btn" data-tab="cardreader">
       <span class="tab-dot" style="background:#64B5F6"></span>
-      💳 Card Reader (IMCRW/UIMCRW)
+      💳 IMCRW/UIMCRW
     </button>
   </div>
 </header>
